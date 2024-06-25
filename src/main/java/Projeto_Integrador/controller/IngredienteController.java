@@ -9,7 +9,6 @@ import Projeto_Integrador.model.Ingrediente;
 import Projeto_Integrador.model.DTO.IngredienteDTO;
 import Projeto_Integrador.utils.ResultadoValidacao;
 import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
