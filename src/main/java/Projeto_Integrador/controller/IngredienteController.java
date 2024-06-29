@@ -11,6 +11,7 @@ import Projeto_Integrador.utils.ResultadoValidacao;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
@@ -77,25 +78,35 @@ public class IngredienteController {
         resultado.setValido(true);
         return resultado;
     }
-
-    public List<IngredienteDTO> idsParaDTOS(ArrayList<Integer> ids) {
-        try {
-            List<IngredienteDTO> IngredientesDTO = new ArrayList<>();
-            for (Integer id : ids) {
-                IngredientesDTO.add(new IngredienteDTO(ingredienteDAO.selectById(id).getId(),
-                        ingredienteDAO.selectById(id).getNome(),
-                        ingredienteDAO.selectById(id).getValor(),
-                        ingredienteDAO.selectById(id).getQuantidade(),
-                        ingredienteDAO.selectById(id).getTipo()
-                ));
+      public static ResultadoValidacao validarIngredientesQuantidades(Map<String, String> ingredientesEQuantidades) {
+        ResultadoValidacao resultado = new ResultadoValidacao();
+        for (Map.Entry<String, String> entry : ingredientesEQuantidades.entrySet()) {
+            String Ingrediente = entry.getKey();
+            String val = entry.getValue();
+            if (Ingrediente.equals("Selecione o ingrediente")) {
+                resultado.setValido(false);
+                resultado.setMensagem("Selecione o ingrediente corretamente.");
+                return resultado;
             }
-            return IngredientesDTO;
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-            return null;
+            if (val.contains(",")) {
+                val = val.replace(",", ".");
+            }
+            try {
+                float quantidadeFloat = Float.valueOf(val);
+                if (quantidadeFloat <= 0) {
+                resultado.setValido(false);
+                resultado.setMensagem("Valor da quantidade deve ser um número positivo.");
+                return resultado;
+            }
+            } catch (NumberFormatException e) {
+                resultado.setValido(false);
+                resultado.setMensagem("Valor da quantidade dos ingredientes deve ser um número válido.");
+                return resultado;
+            }
         }
+        resultado.setValido(true);
+        return resultado;
     }
-
     public void carregarIngredientesParaTabela(JTable table) {
         try {
             //  selecionando todos items da table na db
@@ -175,5 +186,23 @@ public class IngredienteController {
         }
         return sucesso;
     }
-
+    public List<IngredienteDTO> carregarIngredienteDTOs() {
+        try {
+            List<Ingrediente> ingredientes = ingredienteDAO.selectAll();
+            List<IngredienteDTO> ingredientesDTO = new ArrayList<>();
+            for (Ingrediente ingrediente : ingredientes) {
+                IngredienteDTO ingredienteDTO = new IngredienteDTO(
+                        ingrediente.getId(),
+                        ingrediente.getNome(),
+                        ingrediente.getValor(),
+                        ingrediente.getQuantidade(),
+                        ingrediente.getTipo());
+                ingredientesDTO.add(ingredienteDTO);
+            }
+            return ingredientesDTO;
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+            return null;
+        }
+    }
 }

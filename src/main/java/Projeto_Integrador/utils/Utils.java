@@ -13,12 +13,31 @@ import javax.swing.JTextField;
  *
  * @author henri
  */
-public class ViewUtils {
+public class Utils {
 
-    public ViewUtils() {
+    public Utils() {
     }
 
-    public void limparCampos(Object[] components) {
+    public static String pegarIdDaString(String string) {
+        int posicaoDoEspaco = string.indexOf(" "); // pega a posicao do primeiro espaco q achar
+        String idString = string.substring(0, posicaoDoEspaco); // Extrair a parte do ID (como string)
+        return idString;
+    }
+
+    public static String pegarNomeDaString(String string) {
+        int posicaoDoEspaco = string.indexOf(" "); // pega a posicao do primeiro espaco q achar
+        String nomeString = string.substring(posicaoDoEspaco + 1).trim(); // Extrair a parte do ID (como string)
+        return nomeString;
+    }
+
+    public static String formatarStringParaFloat(String string) {
+        if (string.contains(",")) {
+            string = string.replace(",", ".");
+        }
+        return string;
+    }
+
+    public static void limparCampos(Object[] components) {
         for (Object component : components) {
             if (component instanceof JComboBox) {
                 ((JComboBox<?>) component).setSelectedIndex(0); // Limpa a seleção do JComboBox
@@ -28,7 +47,7 @@ public class ViewUtils {
         }
     }
 
-    public void tableParaCampos(Object[] components, JTable table) {
+    public static void tableParaCampos(Object[] components, JTable table) {
         Object value;
         for (int i = 0; i < components.length; i++) {
             value = table.getValueAt(table.getSelectedRow(), i);
@@ -42,18 +61,7 @@ public class ViewUtils {
         }
     }
 
-    public ArrayList<String> pegarStringsDaTable(JTable table, int column) {
-        int rows = table.getRowCount();
-        ArrayList<String> values = new ArrayList<>();
-
-        for (int i = 0; i < rows; i++) {
-            String value = table.getValueAt(i, column).toString();
-            values.add(value);
-        }
-        return values;
-    }
-
-    public ArrayList<Integer> pegarIdsSelecionadosDaTable(JTable table) {
+    public static ArrayList<Integer> pegarIdsSelecionadosDaTable(JTable table) {
         if (table.getSelectedRows() == null) {
             return null;
         }
@@ -67,7 +75,7 @@ public class ViewUtils {
         return ids;
     }
 
-    public ArrayList<String> pegarStringsSelecionadasDaTable(JTable table, int column) {
+    public static ArrayList<String> pegarStringsSelecionadasDaTable(JTable table, int column) {
         if (table.getSelectedRows() == null) {
             return null;
         }

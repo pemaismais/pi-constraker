@@ -5,7 +5,9 @@
 package Projeto_Integrador.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -31,6 +33,7 @@ public class Produto implements Serializable {
     private Float valor;
     private Float quantidade;
     private String tipo;
+    private Float lucro;
     
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL)
     private List<ProdutoReceita> receitas;
@@ -38,14 +41,14 @@ public class Produto implements Serializable {
     public Produto() {
     }
 
-    public Produto(String nome, Float valor, Float quantidade, String tipo) {
+    public Produto(String nome, Float valor, Float quantidade, String tipo, Float lucro) {
         this.nome = nome;
         this.valor = valor;
         this.quantidade = quantidade;
         this.tipo = tipo;
+        this.lucro = lucro;
     }
     
-
     public int getId() {
         return id;
     }
@@ -90,9 +93,26 @@ public class Produto implements Serializable {
         return receitas;
     }
 
+    public Float getLucro() {
+        return lucro;
+    }
+
+    public void setLucro(Float lucro) {
+        this.lucro = lucro;
+    }
+    
+
     public void setReceitas(List<ProdutoReceita> receitas) {
         this.receitas = receitas;
     }
-    
+    public Map<String, String> getReceitasEQuantidades() {
+        Map<String, String> receitasEQuantidades = new HashMap<>();
+        for (ProdutoReceita produtoReceita : this.receitas) {
+            String IdENome = produtoReceita.getReceita().getId() + " " + produtoReceita.getReceita().getNome();
+            String quantidade = String.valueOf(produtoReceita.getQuantidade());
+            receitasEQuantidades.put(IdENome, quantidade);
+        }
+        return receitasEQuantidades;
+    }
     
 }
