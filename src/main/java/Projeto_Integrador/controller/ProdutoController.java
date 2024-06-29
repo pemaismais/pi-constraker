@@ -11,9 +11,11 @@ import Projeto_Integrador.model.Produto;
 import Projeto_Integrador.model.ProdutoReceita;
 import Projeto_Integrador.model.Receita;
 import Projeto_Integrador.utils.ResultadoValidacao;
+import Projeto_Integrador.utils.Utils;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
@@ -93,7 +95,7 @@ public class ProdutoController {
                 for (Produto produto : produtos) {
                     String valor = String.format("%.02f", produto.getValor());
                     String valorPorQuantidade = String.format("%.02f", produto.getValor() / produto.getQuantidade());
-                    model.addRow(new Object[]{produto.getId(), produto.getNome(), valor, produto.getQuantidade(), produto.getTipo(), valorPorQuantidade});
+                    model.addRow(new Object[]{produto.getId(), produto.getNome(), valor, produto.getLucro(), produto.getQuantidade(), produto.getTipo(), valorPorQuantidade});
                 }
             }
         } catch (Exception e) {
@@ -101,44 +103,40 @@ public class ProdutoController {
         }
     }
 
-    public boolean cadastrar(ProdutoDTO produtoDTO, ArrayList<Integer> idReceitas, ArrayList<Float> quantidadeReceitas) {
+    public boolean cadastrar2(ProdutoDTO produtoDTO, Map<String, String> receitasEQuantidades) {
         try {
             ResultadoValidacao resultado = validarReceita(produtoDTO);
-            if (idReceitas.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Selecione as receitas do produto!");
-                return false;
-            }
+            ResultadoValidacao resultadoReceitas = ReceitaController.validarReceitasEQuantidades(receitasEQuantidades);
 
-            if (resultado.isValido()) {
-                ArrayList<Receita> ReceitasSelecionadas = new ArrayList<>();
-                List<ProdutoReceita> receitasComQtd = new ArrayList<>();
+            if (resultado.isValido() && resultadoReceitas.isValido()) {
+                List<ProdutoReceita> items = new ArrayList<>();
                 float valor = Float.parseFloat(produtoDTO.getValor());
                 float quantidade = Float.parseFloat(produtoDTO.getQuantidade());
+                Produto produto = new Produto(produtoDTO.getNome(), valor, quantidade, produtoDTO.getTipo(), produtoDTO.getLucro());
+                //
+                for (Map.Entry<String, String> entry : receitasEQuantidades.entrySet()) {
+                    String key = entry.getKey();
+                    String val = entry.getValue();
 
-                Produto produto = new Produto(produtoDTO.getNome(), valor, quantidade, produtoDTO.getTipo());
-
-                // adicionando as receitas  no arraylist pelo ID
-                for (Integer id : idReceitas) {
+                    int id = Integer.parseInt(Utils.pegarIdDaString(key));
                     Receita receita = receitaDAO.selectById(id);
-                    ReceitasSelecionadas.add(receita);
+
+                    ProdutoReceita itemReceita = new ProdutoReceita();
+                    float quantidadeItem = Float.parseFloat(val);
+                    itemReceita.setQuantidade(quantidadeItem);
+                    itemReceita.setProduto(produto);
+                    itemReceita.setReceita(receita);
+                    items.add(itemReceita);
                 }
-
-                // juntando os ingredientes com a quantidade e colocando no array
-                for (int i = 0; i < ReceitasSelecionadas.size(); i++) {
-                    ProdutoReceita ReceitaComQtd = new ProdutoReceita();
-                    float quantidadeReceita = quantidadeReceitas.get(i);
-
-                    ReceitaComQtd.setQuantidade(quantidadeReceita);
-                    ReceitaComQtd.setReceita(ReceitasSelecionadas.get(i));
-                    ReceitaComQtd.setProduto(produto);
-
-                    receitasComQtd.add(ReceitaComQtd);
-                }
-                produto.setReceitas(receitasComQtd);
+                //
+                produto.setReceitas(items);
                 produtoDAO.cadastrarProduto(produto);
                 return true;
-            } else {
+            } else if (!resultado.isValido()) {
                 JOptionPane.showMessageDialog(null, "Erro ao processar dados: " + resultado.getMensagem());
+                return false;
+            } else {
+                JOptionPane.showMessageDialog(null, "Erro ao processar dados: " + resultadoReceitas.getMensagem());
                 return false;
             }
         } catch (SQLException e) {
@@ -147,65 +145,50 @@ public class ProdutoController {
         }
     }
 
-    public boolean alterar(ProdutoDTO novoProdutoDTO, ArrayList<Integer> idReceitas, ArrayList<Float> quantidadesReceitas) {
+    public boolean alterar2(ProdutoDTO novoProdutoDTO, Map<String, String> receitasEQuantidades) {
         try {
             ResultadoValidacao resultado = validarReceita(novoProdutoDTO);
-            // vendo se selecionou algum ingrediente p/ receita
-            if (idReceitas.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Selecione os ingredientes da receita");
-                return false;
-            }
-            if (resultado.isValido() == false) {
+            ResultadoValidacao resultadoReceitas = ReceitaController.validarReceitasEQuantidades(receitasEQuantidades);
+            if (resultado.isValido() && resultadoReceitas.isValido()) {
+
+                // transformando as strings
+                List<ProdutoReceita> items = new ArrayList<>();
+                float valor = Float.parseFloat(novoProdutoDTO.getValor());
+                float quantidade = Float.parseFloat(novoProdutoDTO.getQuantidade());
+
+                Produto produto = produtoDAO.selectById(novoProdutoDTO.getId());
+                produto.setNome(novoProdutoDTO.getNome());
+                produto.setValor(valor);
+                produto.setQuantidade(quantidade);
+                produto.setTipo(novoProdutoDTO.getTipo());
+                produto.setLucro(novoProdutoDTO.getLucro());
+                produtoDAO.removerTodasReceitas(novoProdutoDTO.getId());
+
+                // inserindo os produtos dentro da list
+                for (Map.Entry<String, String> entry : receitasEQuantidades.entrySet()) {
+                    String key = entry.getKey();
+                    String val = entry.getValue();
+
+                    int id = Integer.parseInt(Utils.pegarIdDaString(key));
+                    Receita receita = receitaDAO.selectById(id);
+
+                    ProdutoReceita itemReceita = new ProdutoReceita();
+                    float quantidadeItem = Float.parseFloat(val);
+                    itemReceita.setQuantidade(quantidadeItem);
+                    itemReceita.setProduto(produto);
+                    itemReceita.setReceita(receita);
+                    items.add(itemReceita);
+                }
+                //
+                produto.setReceitas(items);
+                produtoDAO.alterarProduto(produto);
+                return true;
+            } else if (!resultado.isValido()) {
                 JOptionPane.showMessageDialog(null, "Erro ao processar dados: " + resultado.getMensagem());
                 return false;
-            }
-            // Validando se colocou a quantidade para todos os ingredientes
-            for (Integer idReceita : idReceitas) {
-                if (idReceita == null || idReceita == 0) {
-                    String IngredienteNome = receitaDAO.selectById(idReceitas.get(idReceita)).getNome();
-                    JOptionPane.showMessageDialog(null, "Insira a quantidade do ingrediente: " + IngredienteNome);
-                    return false;
-                }
-            }
-
-            // transformando as strings
-            ArrayList<Receita> receitasSelecionadas = new ArrayList<>();
-            List<ProdutoReceita> receitasComQuantidade = new ArrayList<>();
-
-            float valor = Float.parseFloat(novoProdutoDTO.getValor());
-            float quantidade = Float.parseFloat(novoProdutoDTO.getQuantidade());
-            Produto novoProduto = produtoDAO.selectById(novoProdutoDTO.getId());
-            novoProduto.setNome(novoProdutoDTO.getNome());
-            novoProduto.setValor(valor);
-            novoProduto.setQuantidade(quantidade);
-            novoProduto.setTipo(novoProdutoDTO.getTipo());
-            produtoDAO.removerTodasReceitas(novoProdutoDTO.getId());
-
-            // juntando os ingredientes com a quantidade e colocando no array
-            for (Integer id : idReceitas) {
-                Receita receita = receitaDAO.selectById(id);
-                receitasSelecionadas.add(receita);
-            }
-
-            // juntando os ingredientes com a quantidade e colocando no array
-            for (int i = 0; i < receitasSelecionadas.size(); i++) {
-                ProdutoReceita receitaComQtd = new ProdutoReceita();
-                float quantidadeIngrediente = quantidadesReceitas.get(i);
-
-                receitaComQtd.setQuantidade(quantidadeIngrediente);
-                receitaComQtd.setReceita(receitasSelecionadas.get(i));
-                receitaComQtd.setProduto(novoProduto);
-
-                receitasComQuantidade.add(receitaComQtd);
-            }
-            novoProduto.setReceitas(receitasComQuantidade);
-
-            if (!produtoDAO.alterarProduto(novoProduto)) {
-                JOptionPane.showMessageDialog(null, " Erro ao alterar Receita no DB ");
-                return false;
             } else {
-                JOptionPane.showMessageDialog(null, " Receita alterada com sucesso!");
-                return true;
+                JOptionPane.showMessageDialog(null, "Erro ao processar dados: " + resultadoReceitas.getMensagem());
+                return false;
             }
 
         } catch (SQLException e) {
@@ -224,63 +207,16 @@ public class ProdutoController {
             sucesso = false;
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
-    return sucesso;
+        return sucesso;
     }
 
-    public void carregarReceitasDoProdutoParaTabela(JTable table, int idProduto) {
+    public Map<String, String> getReceitasEQuantidadesDoProduto(int id) {
         try {
-            Produto produto = produtoDAO.selectById(idProduto);
-
-            List<ProdutoReceita> receitas = produto.getReceitas();
-
-            DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
-            tableModel.setRowCount(0);
-
-            for (ProdutoReceita receita : receitas) {
-                Object[] dados = new Object[]{receita.getReceita().getId(), receita.getReceita().getNome(), receita.getReceita()};
-                tableModel.addRow(dados);
-            }
-        } catch (Exception e) {
+            Produto produto = produtoDAO.selectById(id);
+            return produto.getReceitasEQuantidades();
+        } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
-        }
-    }
-    
-    public void SelecionarReceitasDoProdutoNaTable(int idProduto, JTable tableReceita) {
-        try {
-            Produto produto = produtoDAO.selectById(idProduto);
-            List<ProdutoReceita> receitas = produto.getReceitas();
-            List<Integer> receitasIds = new ArrayList<>();
-
-            // pegando as receitas pelo id
-            for (ProdutoReceita produtoReceita : receitas) {
-                receitasIds.add(produtoReceita.getReceita().getId());
-            }
-            // Selecionando as Ingredientes da receita que tao na table            
-            for (int i = 0; i < tableReceita.getRowCount(); i++) {
-                int id = (int) tableReceita.getValueAt(i, 0);
-                if (receitasIds.contains(id)) {
-                    tableReceita.addRowSelectionInterval(i, i);
-                }
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        }
-    }
-
-    public void receitasDoProdutoParaTable(JTable jTableReceitasProduto, int idProduto) {
-        try {
-            Produto produto = produtoDAO.selectById(idProduto);
-
-            List<ProdutoReceita> receitas = produto.getReceitas();
-            DefaultTableModel tableModel = (DefaultTableModel) jTableReceitasProduto.getModel();
-            tableModel.setRowCount(0);
-
-            for (ProdutoReceita receita : receitas) {
-                Object[] dados = new Object[]{receita.getReceita().getId(), receita.getReceita().getNome(), receita.getQuantidade(), receita.getReceita().getTipo()};
-                tableModel.addRow(dados);
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
+            return null;
         }
     }
 

@@ -17,24 +17,27 @@ public class ProdutoDTO {
     private String valor;
     private String quantidade;
     private String tipo;
+    private float  lucro;
     private List<ProdutoReceita> receitas;
 
     public ProdutoDTO() {
     }
 
-    public ProdutoDTO( String nome, String valor, String quantidade, String tipo) {
+    public ProdutoDTO( String nome, String valor, String quantidade, String tipo, float lucro) {
         this.nome = nome;
         this.valor = valor;
         this.quantidade = quantidade;
         this.tipo = tipo;
+        this.lucro = lucro;
     }
 
-    public ProdutoDTO(int id, String nome, String valor, String quantidade, String tipo) {
+    public ProdutoDTO(int id, String nome, String valor, String quantidade, String tipo, float lucro) {
         this.id = id;
         this.nome = nome;
         this.valor = valor;
         this.quantidade = quantidade;
         this.tipo = tipo;
+        this.lucro = lucro;
     }
     
     public int getId() {
@@ -83,6 +86,14 @@ public class ProdutoDTO {
 
     public void setReceitas(List<ProdutoReceita> receitas) {
         this.receitas = receitas;
+    }
+
+    public float getLucro() {
+        return lucro;
+    }
+
+    public void setLucro(float lucro) {
+        this.lucro = lucro;
     }
   
     

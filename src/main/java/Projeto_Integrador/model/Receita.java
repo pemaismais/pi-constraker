@@ -4,10 +4,13 @@
  */
 package Projeto_Integrador.model;
 
+import Projeto_Integrador.utils.Utils;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -146,6 +149,15 @@ public class Receita implements Serializable {
             ingredientesQuantidades.add(ingredienteQuantidade);
         }
         return ingredientesQuantidades;
+    }
+    public Map<String, String> getIngredientesEQuantidades2() {
+        Map<String, String> ingredientesEQuantidades = new HashMap<>();
+        for (IngredienteReceita ingredienteReceita : ingredientes) {
+            String IdENome = ingredienteReceita.getIngrediente().getId() + " " + ingredienteReceita.getIngrediente().getNome();
+            String quantidade = String.valueOf(ingredienteReceita.getQuantidade());
+            ingredientesEQuantidades.put(IdENome, quantidade);
+        }
+        return ingredientesEQuantidades;
     }
 
     public void removerTodosIngredientes() throws SQLException {
