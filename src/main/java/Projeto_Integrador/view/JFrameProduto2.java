@@ -648,7 +648,12 @@ public class JFrameProduto2 extends javax.swing.JFrame {
         if (jTextFieldValorAdicional.getText().isBlank()) {
             valorAdicional = 0;
         } else {
-            valorAdicional = Float.parseFloat(jTextFieldValorAdicional.getText());
+            try {
+                String valorFormatado = Utils.formatarStringParaFloat(jTextFieldValorAdicional.getText());
+                valorAdicional = Float.parseFloat(valorFormatado);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Insira um valor adicional valido");
+            }
         }
 
         // pegando o valor adicional

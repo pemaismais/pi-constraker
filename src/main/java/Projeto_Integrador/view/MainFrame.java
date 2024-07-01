@@ -29,7 +29,7 @@ public class MainFrame extends javax.swing.JFrame {
         jButtonReceita = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Menu principal");
+        setTitle("Home");
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
@@ -42,6 +42,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         jButtonIngrediente.setFont(new java.awt.Font("Segoe UI", 0, 22)); // NOI18N
         jButtonIngrediente.setText("Ingredientes");
+        jButtonIngrediente.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonIngrediente.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonIngredienteActionPerformed(evt);
@@ -50,6 +51,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         jButtonProduto.setFont(new java.awt.Font("Segoe UI", 0, 22)); // NOI18N
         jButtonProduto.setText("Produtos");
+        jButtonProduto.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonProduto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonProdutoActionPerformed(evt);
@@ -58,6 +60,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         jButtonReceita.setFont(new java.awt.Font("Segoe UI", 0, 22)); // NOI18N
         jButtonReceita.setText("Receitas");
+        jButtonReceita.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonReceita.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonReceitaActionPerformed(evt);

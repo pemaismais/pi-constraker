@@ -91,7 +91,7 @@ public class JFrameReceita2 extends javax.swing.JFrame {
         jLabelIngredientesDaReceita = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("RECEITA");
+        setTitle("Receitas");
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosed(java.awt.event.WindowEvent evt) {
@@ -604,12 +604,16 @@ public class JFrameReceita2 extends javax.swing.JFrame {
         } else {
             JOptionPane.showMessageDialog(null, resultado.getMensagem());
         }
-
         // se nao tiver nada no field ele seta pra 0 
         if (jTextFieldValorAdicional.getText().isBlank()) {
             valorAdicional = 0;
         } else {
-            valorAdicional = Float.parseFloat(jTextFieldValorAdicional.getText());
+            try {
+                String valorFormatado = Utils.formatarStringParaFloat(jTextFieldValorAdicional.getText());
+                valorAdicional = Float.parseFloat(valorFormatado);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Insira um valor adicional valido");
+            }
         }
 
         // pegando o valor adicional
@@ -656,7 +660,7 @@ public class JFrameReceita2 extends javax.swing.JFrame {
             }
             // settando os containers
             SetarIngredientesEQuantidades(ingredientesEQuantidades);
-          // calculando o valor adicional
+            // calculando o valor adicional
             float valorTabela = Float.parseFloat(
                     Utils.formatarStringParaFloat(
                             jTextFieldValor.getText()));
@@ -716,7 +720,7 @@ public class JFrameReceita2 extends javax.swing.JFrame {
             if (resposta == JOptionPane.YES_OPTION) {
                 int idReceita = ids.get(0);
                 String nome = jTextFieldNome.getText();
-                String valor = jTextFieldValor.getText();
+                String valor = calcularValor();
                 String quantidade = jTextFieldQuantidade.getText();
                 String tipo = jComboBoxTipo.getSelectedItem().toString();
 
@@ -738,10 +742,9 @@ public class JFrameReceita2 extends javax.swing.JFrame {
 
     private void enviar(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enviar
         try {
-            calcularValor();
             // pegando os valores da receita
             String nome = jTextFieldNome.getText();
-            String valor = jTextFieldValor.getText();
+            String valor = calcularValor();
             String quantidade = jTextFieldQuantidade.getText();
             String tipo = jComboBoxTipo.getSelectedItem().toString();
 
@@ -765,7 +768,7 @@ public class JFrameReceita2 extends javax.swing.JFrame {
     private void jTextFieldValorAdicionalKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldValorAdicionalKeyPressed
         // TODO add your handling code here:
         if (evt.getExtendedKeyCode() == KeyEvent.VK_ENTER) {
-                    jTextFieldValor.setText(calcularValor());
+            jTextFieldValor.setText(calcularValor());
 
         }
     }//GEN-LAST:event_jTextFieldValorAdicionalKeyPressed
@@ -795,10 +798,8 @@ public class JFrameReceita2 extends javax.swing.JFrame {
 
     private void jTextFieldQuantidadeKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldQuantidadeKeyReleased
         if (evt.getExtendedKeyCode() == KeyEvent.VK_ENTER) {
-                    jTextFieldValor.setText(calcularValor());
-
+            jTextFieldValor.setText(calcularValor());
         }
-
     }//GEN-LAST:event_jTextFieldQuantidadeKeyReleased
 
     /**

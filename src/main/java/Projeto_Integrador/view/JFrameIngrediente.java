@@ -51,7 +51,7 @@ public class JFrameIngrediente extends javax.swing.JFrame {
         jButtonRemove = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("INGREDIENTES");
+        setTitle("Ingredientes");
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosed(java.awt.event.WindowEvent evt) {
@@ -231,7 +231,7 @@ public class JFrameIngrediente extends javax.swing.JFrame {
 
         jButtonRemove.setBackground(new java.awt.Color(255, 204, 204));
         jButtonRemove.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jButtonRemove.setText("Remover");
+        jButtonRemove.setText("Excluir");
         jButtonRemove.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonRemove.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
