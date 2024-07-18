@@ -157,7 +157,7 @@ public class JFrameProduto2 extends javax.swing.JFrame {
         jLabel7.setText("Lucro");
 
         jComboBoxLucro.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jComboBoxLucro.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1.5", "2", "2.5", "3" }));
+        jComboBoxLucro.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1.0", "1.5", "2.0", "2.5", "3.0" }));
         jComboBoxLucro.setToolTipText("Selecione o lucro desejado do produto");
         jComboBoxLucro.setPreferredSize(new java.awt.Dimension(200, 40));
         jComboBoxLucro.addItemListener(new java.awt.event.ItemListener() {
@@ -167,7 +167,7 @@ public class JFrameProduto2 extends javax.swing.JFrame {
         });
 
         jTextFieldValor.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jTextFieldValor.setText("1");
+        jTextFieldValor.setText("0");
         jTextFieldValor.setToolTipText("O valor é carregado automaticamente.");
         jTextFieldValor.setEnabled(false);
 
@@ -691,12 +691,14 @@ public class JFrameProduto2 extends javax.swing.JFrame {
             atualizarLabelIngredientesDaReceita(nomeReceita.get(0), jLabelIngredientesDaReceita);
 
             // passando o valores da tabela pros campos p/ preencher 
-            Utils.tableParaCampos(new Object[]{null, jTextFieldNome, jTextFieldValor, jComboBoxLucro, jTextFieldQuantidade, jComboBoxTipo}, jTableProdutos);
+            Utils.tableParaCampos(new Object[]{null, jTextFieldNome, jTextFieldValor, jComboBoxLucro, jTextFieldQuantidade, jComboBoxTipo, null}, jTableProdutos);
+            // reforçando as x n vai
+            jTextFieldValor.setText(Utils.pegarStringsSelecionadasDaTable(jTableProdutos, 2).get(0));
             // adicionando os containers das receitas
             Map<String, String> receitasEQuantidades = produtoController.getReceitasEQuantidadesDoProduto(ids.get(0));
             // criando os containers
             for (Map.Entry<String, String> entry : receitasEQuantidades.entrySet()) {
-                adicionar();
+                adicionar();   
             }
             // settando os containers
             SetarReceitasEQuantidades(receitasEQuantidades);
@@ -706,8 +708,8 @@ public class JFrameProduto2 extends javax.swing.JFrame {
                             jTextFieldValor.getText()));
             float valorCalculado = Float.parseFloat(
                     Utils.formatarStringParaFloat(
-                            calcularValor()));
-            float valorAdicional = valorTabela - valorCalculado;
+                            calcularValor())); 
+            float valorAdicional = Math.abs(valorTabela - valorCalculado);
             String valorFormatado = String.format("%.02f", valorAdicional);
             jTextFieldValorAdicional.setText(String.valueOf(valorFormatado));
         }
@@ -827,7 +829,6 @@ public class JFrameProduto2 extends javax.swing.JFrame {
         jButtonAlterar.setIcon(IconFontSwing.buildIcon(Elusive.PENCIL, 16, Color.black));
         Float lucro = Float.valueOf(
                 jComboBoxLucro.getSelectedItem().toString());
-        System.out.println(lucro);
     }//GEN-LAST:event_formWindowOpened
 
     private void jTextFieldQuantidadeKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldQuantidadeKeyReleased
